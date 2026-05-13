@@ -1,0 +1,7 @@
+
+4 layer architecture
+
+UI Layer => is to showcase the UI and  handle Navigation (Component and pages)
+Hooks layer => is to manage the state of the application and also to make API calls
+state layer => to manage the data store from the backend (store the responses) [auth.context.jsx]
+API layer => is use to communicate with backend (services/auth.api.js)

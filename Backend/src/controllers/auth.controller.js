@@ -1,12 +1,10 @@
 const userModel = require("../models/user.model");
 
-const blackListModel = require("../models/blacklist.model")
-
 const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcryptjs");
 
-const redis = require("../config/cache")
+const redis = require("../config/cache");
 
 async function registerController(req, res) {
   const { username, email, password } = req.body;
@@ -24,14 +22,13 @@ async function registerController(req, res) {
 
   const hash = await bcrypt.hash(password, 10);
   const user = await userModel.create({
-      username,
-      email,
-      password: hash,
-    });
-    
+    username,
+    email,
+    password: hash,
+  });
+
   const token = jwt.sign(
-    { id: user._id,
-     email: user.email },
+    { id: user._id, email: user.email },
     process.env.JWT_SCERET,
     {
       expiresIn: "1d",
@@ -50,30 +47,28 @@ async function registerController(req, res) {
   });
 }
 
-async function loginController(req,res){
-    const {email,password,username} = req.body;
+async function loginController(req, res) {
+  const { email, password, username } = req.body;
 
-    const user = await userModel.findOne({
-        $or:[
-            {email},
-            {username}
-        ]
-    }).select("+password");
-    if(!user){
-        return res.status(401).json({
-            message:"Invalid credentials"
-        })
-    }
-    // console.log(user);
-   const isPasswordCorrect = await bcrypt.compare(password,user.password);
-   if(!isPasswordCorrect){
-      return res.status(401).json({
-        message:"Invalid credentials"
-      })
-   }
-      const token = jwt.sign(
-    { id: user._id,
-     email: user.email },
+  const user = await userModel
+    .findOne({
+      $or: [{ email }, { username }],
+    })
+    .select("+password");
+  if (!user) {
+    return res.status(401).json({
+      message: "Invalid credentials",
+    });
+  }
+  // console.log(user);
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordCorrect) {
+    return res.status(401).json({
+      message: "Invalid credentials",
+    });
+  }
+  const token = jwt.sign(
+    { id: user._id, email: user.email },
     process.env.JWT_SCERET,
     {
       expiresIn: "1d",
@@ -81,46 +76,42 @@ async function loginController(req,res){
   );
   res.cookie("token", token);
   return res.status(200).json({
-    message:"user is logged in..",
-    user:{
-        username:user.username,
-        email:user.email
+    message: "user is logged in..",
+    user: {
+      username: user.username,
+      email: user.email,
     },
-    token
-  })
-  
+    token,
+  });
 }
 
-async function getMeController(req,res){
- const user = await userModel.findById(req.user.id);
- if(user){
-  return res.status(200).json({
-    message:"user fetched successfully..",
-    user
-  })
- }
-
+async function getMeController(req, res) {
+  const user = await userModel.findById(req.user.id);
+  if (user) {
+    return res.status(200).json({
+      message: "user fetched successfully..",
+      user,
+    });
+  }
 }
 
-async function logOutController(req,res){
-   const token = req.cookies.token;
-   if(!token){
+async function logOutController(req, res) {
+  const token = req.cookies.token;
+  if (!token) {
     res.status(401).json({
-      message:"Invalid access. Token not provided"
-    })
-   }
-   res.clearCookie("token");
-   await redis.set(token,Date.now().toString(),"EX",60*60)
-    
+      message: "Invalid access. Token not provided",
+    });
+  }
+  res.clearCookie("token");
+  await redis.set(token, Date.now().toString(), "EX", 60 * 60);
 
-   res.status(201).json({
-    message:"token blacklisted successfully...",
-    
-   })
+  res.status(201).json({
+    message: "token blacklisted successfully...",
+  });
 }
 module.exports = {
   registerController,
   loginController,
   getMeController,
-  logOutController
+  logOutController,
 };

@@ -6,6 +6,8 @@ const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcryptjs");
 
+const redis = require("../config/cache")
+
 async function registerController(req, res) {
   const { username, email, password } = req.body;
 
@@ -108,9 +110,8 @@ async function logOutController(req,res){
     })
    }
    res.clearCookie("token");
-    await blackListModel.create({
-    token
-   });
+   await redis.set(token,Date.now().toString(),"EX",60*60)
+    
 
    res.status(201).json({
     message:"token blacklisted successfully...",

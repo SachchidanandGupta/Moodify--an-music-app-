@@ -26,9 +26,13 @@ export default function FaceExpression({ onClick = () => { } }) {
     }, []);
 
     async function handleClick() {
-        const expression = detect({ landmarkerRef, videoRef, setExpression })
-        console.log(expression)
-        onClick(expression)
+        const expression = await detect({ landmarkerRef, videoRef, setExpression })
+            console.log('detected expression:', expression)
+            if (expression) {
+                onClick(expression)
+            } else {
+                console.warn('No expression detected yet')
+            }
     }
 
 

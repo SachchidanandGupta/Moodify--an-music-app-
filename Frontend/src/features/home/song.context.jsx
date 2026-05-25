@@ -5,15 +5,11 @@ export const SongContext = createContext()
 
 export const SongContextProvider = ({ children }) => {
 
+    // default song is an empty track so UI can show/hide player correctly
     const [ song, setSong ] = useState({
-  "_id": {
-    "$oid": "6a0426bc4928e539d457f19f"
-  },
-  "username": "sn",
-  "email": "sn@sn.com",
-  "password": "$2b$10$/DzZCAOLcug1NQYJk1XYH.LViJS4OjjO45gQg9NAG1WlNwA.55hl2",
-  "__v": 0
-
+        title: "",
+        artist: "",
+        src: "",
     })
 
     const [ loading, setLoading ] = useState(false)

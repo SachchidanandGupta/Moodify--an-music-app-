@@ -27,10 +27,10 @@ export const init = async ({ landmarkerRef, videoRef, streamRef }) => {
     await videoRef.current.play();
 };
 
-export const detect = ({ landmarkerRef, videoRef, setExpression }) => {
+export const detect = async ({ landmarkerRef, videoRef, setExpression }) => {
     if (!landmarkerRef.current || !videoRef.current) return;
 
-    const results = landmarkerRef.current.detectForVideo(
+    const results = await landmarkerRef.current.detectForVideo(
         videoRef.current,
         performance.now()
     );

@@ -1,33 +1,36 @@
 import { useEffect, useRef, useState } from "react";
-import {init, detect} from "../utils/util";
+import { detect, init } from "../utils/util";
 
-export default function FaceExpression() {
+
+export default function FaceExpression({ onClick = () => { } }) {
     const videoRef = useRef(null);
     const landmarkerRef = useRef(null);
-    let streamRef = useRef(null);
+    const streamRef = useRef(null);
 
     const [ expression, setExpression ] = useState("Detecting...");
-    useEffect(() => {
-        
 
-        init({videoRef, landmarkerRef, streamRef, setExpression});
+    useEffect(() => {
+        init({ landmarkerRef, videoRef, streamRef });
 
         return () => {
-            
-            const currentLandmarker = landmarkerRef.current;
-            const currentVideo = videoRef.current;
-
-            if (currentLandmarker) {
-                currentLandmarker.close();
+            if (landmarkerRef.current) {
+                landmarkerRef.current.close();
             }
 
-            if (currentVideo?.srcObject) {
-                currentVideo.srcObject
+            if (videoRef.current?.srcObject) {
+                videoRef.current.srcObject
                     .getTracks()
                     .forEach((track) => track.stop());
             }
         };
     }, []);
+
+    async function handleClick() {
+        const expression = detect({ landmarkerRef, videoRef, setExpression })
+        console.log(expression)
+        onClick(expression)
+    }
+
 
     return (
         <div style={{ textAlign: "center" }}>
@@ -37,7 +40,7 @@ export default function FaceExpression() {
                 playsInline
             />
             <h2>{expression}</h2>
-            <button onClick={()=>{detect({ landmarkerRef, videoRef, setExpression })}} >Detect expression</button>
+            <button onClick={handleClick} >Detect expression</button>
         </div>
     );
 }
